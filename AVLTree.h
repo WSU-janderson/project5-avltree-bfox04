@@ -4,14 +4,25 @@
 
 #ifndef AVLTREE_H
 #define AVLTREE_H
-#include <string>
+// #include <string>
+// need also:
+// vector
+// optional
+// iostream
 
 using namespace std;
 
 class AVLTree {
 public:
-    using KeyType = std::string;
+    using KeyType = string;
     using ValueType = size_t;
+
+    // default
+    AVLTree();
+
+    AVLTree(const AVLTree& other); // copy
+    AVLTree& operator=(const AVLTree& other); // assignment
+    ~AVLTree(); // destructor
 
 protected:
     class AVLNode {
