@@ -1,17 +1,41 @@
 #include "AVLTree.h"
 
 #include <string>
+#include <algorithm>
+
+using namespace std;
 
 size_t AVLTree::AVLNode::numChildren() const {
-    return 0;
+    size_t numOfKids = 0;
+    if (left) numOfKids++;
+    if (right) numOfKids++;
+    return numOfKids;
 }
 
 bool AVLTree::AVLNode::isLeaf() const {
-    return false;
+    return numChildren() == 0;
 }
 
 size_t AVLTree::AVLNode::getHeight() const {
-    return 0;
+    return height;
+}
+
+void AVLTree::updateHeight(AVLNode* node) {
+    if (!node) return;
+
+    size_t leftHeight = node->left ? node->left->getHeight() : 0;
+    size_t rightHeight = node->right ? node->right->getHeight() : 0;
+
+    node->height = 1 + max(leftHeight, rightHeight);
+}
+
+int AVLTree::getBalanceFactor(AVLNode* node) const {
+    if (!node) return 0;
+
+    int leftHeight = node->left ? static_cast<int>(node->left->getHeight()) : 0;
+    int rightHeight = node->right ? static_cast<int>(node->right->getHeight()) : 0;
+
+    return leftHeight - rightHeight;
 }
 
 bool AVLTree::removeNode(AVLNode*& current){
@@ -62,5 +86,49 @@ bool AVLTree::remove(AVLNode *&current, KeyType key) {
     return false;
 }
 
-void AVLTree::balanceNode(AVLNode *&node) {
+void AVLTree::rotateLeft(AVLNode*& node) {
+    AVLNode* tempRoot = node->right;
+
+    node->right = tempRoot->left;
+
+    tempRoot->left = node;
+
+    updateHeight(node);
+    updateHeight(tempRoot);
+
+    node = tempRoot;
+}
+
+void AVLTree::rotateRight(AVLNode*& node) {
+    AVLNode* tempRoot = node->left;
+
+    node->left = tempRoot->right;
+
+    tempRoot->right = node;
+
+    updateHeight(node);
+    updateHeight(tempRoot);
+
+    node = tempRoot;
+}
+
+void AVLTree::balanceNode(AVLNode*& node) {
+    if (!node) return;
+
+    updateHeight(node);
+
+    int balanceFactor = getBalanceFactor(node);
+
+    if (balanceFactor > 1) {
+        if (getBalanceFactor(node->left) < 0) {
+            rotateLeft(node->left);
+        }
+        rotateRight(node);
+    }
+    else if (balanceFactor < -1) {
+        if (getBalanceFactor(node->right) > 0) {
+            rotateRight(node->right);
+        }
+        rotateLeft(node);
+    }
 }
