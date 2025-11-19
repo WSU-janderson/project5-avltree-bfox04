@@ -4,11 +4,10 @@
 
 #ifndef AVLTREE_H
 #define AVLTREE_H
-// #include <string>
-// need also:
-// vector
-// optional
-// iostream
+#include <string>
+#include <optional>
+#include <vector>
+#include <iostream>
 
 using namespace std;
 
@@ -23,6 +22,20 @@ public:
     AVLTree(const AVLTree& other); // copy
     AVLTree& operator=(const AVLTree& other); // assignment
     ~AVLTree(); // destructor
+
+    bool insert(const KeyType& key, const ValueType& value);
+    bool remove(const KeyType& key);
+    bool contains(const KeyType& key) const;
+    optional<ValueType> get(const KeyType& key) const;
+    ValueType& operator[](const KeyType& key);
+
+    vector<string> AVLTree::findRange(const string& lowKey, const string& highKey) const;
+    vector<KeyType> keys() const;
+
+    size_t size() const;
+    size_t getHeight() const;
+
+    friend ostream& operator<<(ostream& os, const AVLTree& tree);
 
 protected:
     class AVLNode {
