@@ -23,13 +23,13 @@ public:
     AVLTree& operator=(const AVLTree& other); // assignment
     ~AVLTree(); // destructor
 
-    bool insert(const KeyType& key, const ValueType& value);
+    bool insert(const KeyType& key, ValueType value);
     bool remove(const KeyType& key);
     bool contains(const KeyType& key) const;
     optional<ValueType> get(const KeyType& key) const;
     ValueType& operator[](const KeyType& key);
 
-    vector<string> AVLTree::findRange(const string& lowKey, const string& highKey) const;
+    vector<ValueType> findRange(const KeyType& lowKey, const KeyType& highKey) const;
     vector<KeyType> keys() const;
 
     size_t size() const;
@@ -54,16 +54,14 @@ protected:
         // number of hops to deepest leaf node
         size_t getHeight() const;
 
+        AVLNode(KeyType k, ValueType v) : key(k), value(v), height(1), left(nullptr), right(nullptr) {}
 
     };
 
-public:
-
-
-
-
     private:
     AVLNode* root;
+
+    size_t numElements;
 
     /* Helper methods for remove */
     // this overloaded remove will do the recursion to remove the node
@@ -72,6 +70,27 @@ public:
     bool removeNode(AVLNode*& current);
     // You will implement this, but it is needed for removeNode()
     void balanceNode(AVLNode*& node);
+    
+
+    bool insert(AVLNode*& node, const KeyType& key, ValueType value);
+    bool contains(AVLNode* node, const KeyType& key) const;
+    AVLNode* getNode(AVLNode* node, const KeyType& key) const;
+    
+    void findRange(AVLNode* node, const KeyType& low, const KeyType& high, vector<ValueType>& result) const;
+    void getAllKeys(AVLNode* node, vector<KeyType>& result) const;
+    
+    void printTree(ostream& os, AVLNode* node, int depth) const;
+
+
+    AVLNode* copyTree(AVLNode* node);
+    void destroyTree(AVLNode* node);
+
+
+    void rotateLeft(AVLNode*& node);
+    void rotateRight(AVLNode*& node);
+    void updateHeight(AVLNode* node);
+    int getBalanceFactor(AVLNode* node) const;
+
 
 };
 
