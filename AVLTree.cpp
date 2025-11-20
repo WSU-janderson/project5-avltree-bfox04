@@ -4,7 +4,6 @@
  * Bryce Fox
  */
 
-
 #include "AVLTree.h"
 
 #include <string>
@@ -12,12 +11,15 @@
 
 using namespace std;
 
+// Initialize an empty tree
 AVLTree::AVLTree() : root(nullptr), numElements(0) {}
 
+// Destructor
 AVLTree::~AVLTree() {
     destroyTree(root);
 }
 
+// Recursively delete all nodes
 void AVLTree::destroyTree(AVLNode* node) {
     if (node) {
         destroyTree(node->left);
@@ -26,6 +28,7 @@ void AVLTree::destroyTree(AVLNode* node) {
     }
 }
 
+// Deep copy helper
 AVLTree::AVLNode* AVLTree::copyTree(AVLNode* node) {
     if (node == nullptr) {
         return nullptr;
@@ -40,11 +43,13 @@ AVLTree::AVLNode* AVLTree::copyTree(AVLNode* node) {
     return newNode;
 }
 
+// Copy Constructor
 AVLTree::AVLTree(const AVLTree& other) : root(nullptr), numElements(0) {
     root = copyTree(other.root);
     numElements = other.numElements;
 }
 
+// Assignment Operator
 AVLTree& AVLTree::operator=(const AVLTree& other) {
     if (this != &other) {
         destroyTree(root);
@@ -68,6 +73,7 @@ std::ostream& operator<<(std::ostream& os, const AVLTree& tree) {
     return os;
 }
 
+// Recursive print helper for formatting
 void AVLTree::printTree(std::ostream& os, AVLNode* node, int depth) const {
     if (node) {
         printTree(os, node->right, depth + 1);
@@ -81,17 +87,21 @@ void AVLTree::printTree(std::ostream& os, AVLNode* node, int depth) const {
     }
 }
 
+// Public insert
 bool AVLTree::insert(const KeyType& key, ValueType value) {
     return insert(root, key, value);
 }
 
+// Private recursive insert
 bool AVLTree::insert(AVLNode*& node, const KeyType& key, ValueType value) {
+    // Base case: create new node
     if (node == nullptr) {
         node = new AVLNode(key, value);
         numElements++;
         return true;
     }
 
+    // Duplicate check
     if (key == node->key) {
         return false;
     }
@@ -103,6 +113,7 @@ bool AVLTree::insert(AVLNode*& node, const KeyType& key, ValueType value) {
         success = insert(node->right, key, value);
     }
 
+    // Balance if insertion happened
     if (success) {
         balanceNode(node);
     }
@@ -110,6 +121,7 @@ bool AVLTree::insert(AVLNode*& node, const KeyType& key, ValueType value) {
     return success;
 }
 
+// Helper to find a pointer to a node
 AVLTree::AVLNode* AVLTree::getNode(AVLNode* node, const KeyType& key) const {
     if (node == nullptr) {
         return nullptr;
@@ -140,6 +152,7 @@ bool AVLTree::contains(AVLNode* node, const KeyType& key) const {
     }
 }
 
+// Return value if key exists
 std::optional<AVLTree::ValueType> AVLTree::get(const KeyType& key) const {
     AVLNode* node = getNode(root, key);
     if (node) {
@@ -148,11 +161,13 @@ std::optional<AVLTree::ValueType> AVLTree::get(const KeyType& key) const {
     return std::nullopt;
 }
 
+// Array index operator
 AVLTree::ValueType& AVLTree::operator[](const KeyType& key) {
     AVLNode* node = getNode(root, key);
     return node->value;
 }
 
+// Find all values within a specific key range
 std::vector<AVLTree::ValueType> AVLTree::findRange(const KeyType& lowKey, const KeyType& highKey) const {
     std::vector<ValueType> result;
     findRange(root, lowKey, highKey, result);
@@ -184,6 +199,7 @@ std::vector<AVLTree::KeyType> AVLTree::keys() const {
     return result;
 }
 
+// In-order traversal to get keys
 void AVLTree::getAllKeys(AVLNode* node, std::vector<KeyType>& result) const {
     if (node == nullptr) {
         return;
@@ -197,11 +213,13 @@ bool AVLTree::remove(const KeyType& key) {
     return remove(root, key);
 }
 
+// Private recursive remove
 bool AVLTree::remove(AVLNode*& current, KeyType key) {
     if (current == nullptr) {
         return false;
     }
 
+    // Find the node
     if (key < current->key) {
         bool result = remove(current->left, key);
         if (result) balanceNode(current);
@@ -213,6 +231,7 @@ bool AVLTree::remove(AVLNode*& current, KeyType key) {
         return result;
     }
     else {
+        // Found the node, remove it
         bool success = removeNode(current);
         if (success) {
             numElements--;
@@ -239,6 +258,7 @@ size_t AVLTree::AVLNode::getHeight() const {
     return height;
 }
 
+// Update height based on children
 void AVLTree::updateHeight(AVLNode* node) {
     if (!node) return;
 
@@ -248,6 +268,7 @@ void AVLTree::updateHeight(AVLNode* node) {
     node->height = 1 + max(leftHeight, rightHeight);
 }
 
+// Calculate balance factor (left - right)
 int AVLTree::getBalanceFactor(AVLNode* node) const {
     if (!node) return 0;
 
@@ -257,6 +278,7 @@ int AVLTree::getBalanceFactor(AVLNode* node) const {
     return leftHeight - rightHeight;
 }
 
+// Handle physical removal of a node
 bool AVLTree::removeNode(AVLNode*& current){
     if (!current) {
         return false;
@@ -273,6 +295,7 @@ bool AVLTree::removeNode(AVLNode*& current){
             current = current->left;
         }
     } else {
+        // Two children case: find successor
         AVLNode* smallestInRight = current->right;
         while (smallestInRight->left) {
             smallestInRight = smallestInRight->left;
@@ -280,11 +303,13 @@ bool AVLTree::removeNode(AVLNode*& current){
         string newKey = smallestInRight->key;
         int newValue = smallestInRight->value;
 
+        // Recursively remove successor
         remove(root, smallestInRight->key);
 
         current->key = newKey;
         current->value = newValue;
 
+        // Adjust size since we called remove recursively
         numElements++;
 
         current->height = current->getHeight();
@@ -323,6 +348,7 @@ void AVLTree::rotateRight(AVLNode*& node) {
     node = tempRoot;
 }
 
+// Check balance factor and rotate if needed
 void AVLTree::balanceNode(AVLNode*& node) {
     if (!node) return;
 
@@ -330,12 +356,14 @@ void AVLTree::balanceNode(AVLNode*& node) {
 
     int balanceFactor = getBalanceFactor(node);
 
+    // Left Heavy
     if (balanceFactor > 1) {
         if (getBalanceFactor(node->left) < 0) {
             rotateLeft(node->left);
         }
         rotateRight(node);
     }
+    // Right Heavy
     else if (balanceFactor < -1) {
         if (getBalanceFactor(node->right) > 0) {
             rotateRight(node->right);
