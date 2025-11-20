@@ -16,12 +16,11 @@ public:
     using KeyType = string;
     using ValueType = size_t;
 
-    // default
     AVLTree();
 
-    AVLTree(const AVLTree& other); // copy
-    AVLTree& operator=(const AVLTree& other); // assignment
-    ~AVLTree(); // destructor
+    AVLTree(const AVLTree& other);
+    AVLTree& operator=(const AVLTree& other);
+    ~AVLTree();
 
     bool insert(const KeyType& key, ValueType value);
     bool remove(const KeyType& key);
@@ -47,11 +46,8 @@ protected:
         AVLNode* left;
         AVLNode* right;
 
-        // 0, 1 or 2
         size_t numChildren() const;
-        // true or false
         bool isLeaf() const;
-        // number of hops to deepest leaf node
         size_t getHeight() const;
 
         AVLNode(KeyType k, ValueType v) : key(k), value(v), height(1), left(nullptr), right(nullptr) {}
@@ -63,12 +59,8 @@ protected:
 
     size_t numElements;
 
-    /* Helper methods for remove */
-    // this overloaded remove will do the recursion to remove the node
     bool remove(AVLNode*& current, KeyType key);
-    // removeNode contains the logic for actually removing a node based on the numebr of children
     bool removeNode(AVLNode*& current);
-    // You will implement this, but it is needed for removeNode()
     void balanceNode(AVLNode*& node);
     
 
